@@ -15,7 +15,7 @@ export interface CartItem {
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: CartItem) => Promise<void>;
-  removeFromCart: (productId: string) => Promise<void>;
+  removeFromCart: (id: number) => Promise<void>;
   clearCart: () => Promise<void>;
 }
 
@@ -33,7 +33,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (user) {
-      fetch("/cart/api") // <- tu nueva ruta
+      fetch("/api/cart") // <- tu nueva ruta
         .then((res) => res.json())
         .then((data) => setCart(data))
         .catch(() => setCart([]));
@@ -41,7 +41,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user]);
 
   const addToCart = async (item: CartItem) => {
-    const res = await fetch("/cart/api", {
+    const res = await fetch("/api/cart", {
       method: "POST",
       body: JSON.stringify(item),
       headers: { "Content-Type": "application/json" },
@@ -61,18 +61,19 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const removeFromCart = async (productId: string) => {
-    await fetch("/cart/api", {
+  const removeFromCart = async (id: number) => {
+    await fetch("/api/cart", {
       method: "DELETE",
-      body: JSON.stringify({ productId }),
+      body: JSON.stringify({ id }),
       headers: { "Content-Type": "application/json" },
     });
 
-    setCart((prev) => prev.filter((item) => item.productId !== productId));
+    setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
+
   const clearCart = async () => {
-    await fetch("/cart/api", {
+    await fetch("/api/cart", {
       method: "DELETE",
       body: JSON.stringify({ clear: true }),
       headers: { "Content-Type": "application/json" },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { FiTrash2 } from "react-icons/fi";
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUser, SignInButton, UserButton } from '@clerk/nextjs';
@@ -17,6 +18,31 @@ type CartItem = {
 export default function CartPage() {
   const { isSignedIn, user, isLoaded } = useUser();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const updateQuantity = async (id: number, newQuantity: number) => {
+    if (newQuantity === 0) {
+      // Eliminar visualmente
+      setCartItems(cartItems.filter(item => item.id !== id));
+
+      // Eliminar de la base de datos
+      await fetch('/api/cart', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }), // no productId
+      })
+    } else {
+      // Actualizar visualmente
+      setCartItems(cartItems.map(item =>
+        item.id === id ? { ...item, quantity: newQuantity } : item
+      ));
+
+      // Actualizar en base de datos
+      await fetch('/api/cart', {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ id, quantity: newQuantity }), // no productId
+      });
+    }
+  };
 
   // Obtener carrito desde la base de datos
   useEffect(() => {
@@ -24,7 +50,7 @@ export default function CartPage() {
 
     const fetchCart = async () => {
       try {
-        const res = await fetch(`/api/cart?userId=${user.id}`);
+        const res = await fetch(`/api/cart`);
         const data = await res.json();
         setCartItems(data);
       } catch (error) {
@@ -69,7 +95,7 @@ export default function CartPage() {
                 Iniciar Sesión
               </button>
             </SignInButton>
-            <Link 
+            <Link
               href="/"
               className="block w-full text-center text-gray-600 hover:text-gray-900 font-medium border border-gray-300 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors"
             >
@@ -99,7 +125,7 @@ export default function CartPage() {
             <div className="text-6xl mb-4">🛒</div>
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">Tu carrito está vacío</h2>
             <p className="text-gray-600 mb-8">Descubre nuestras increíbles gorras</p>
-            <Link 
+            <Link
               href="/"
               className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
             >
@@ -136,7 +162,29 @@ export default function CartPage() {
                           ${item.price.toLocaleString()}
                         </p>
                       </div>
-                      <span className="w-12 text-center font-medium">{item.quantity}</span>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                        >
+                          -
+                        </button>
+                        <span className="w-8 text-center font-medium">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => updateQuantity(item.id, 0)}
+                        className="text-red-500 hover:text-red-700"
+                        title="Eliminar del carrito"
+                      >
+                        <FiTrash2 size={20} />
+                      </button>
+
                     </div>
                   ))}
                 </div>
