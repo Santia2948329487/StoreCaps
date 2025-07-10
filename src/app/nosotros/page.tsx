@@ -18,10 +18,10 @@ const teamMembers = [
   {
     id: 2,
     name: "Santiago Castaño Guerrero",
-    role: "Desarrollador BackEnd",
+    role: "Desarrollador Full Stack",
     image: "/nosotros/yo.jpeg",
     description:
-      "Desarrollador con un enfoque en la innovación y la sostenibilidad en la moda.",
+      "Apasionado por la tecnología, desarrollo soluciones completas desde la interfaz hasta la base de datos. Enfocado en la innovación, el rendimiento y la sostenibilidad en el desarrollo web.",
   },
   {
     id: 3,
