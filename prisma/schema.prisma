@@ -43,3 +43,23 @@ model CartItem {
   quantity  Int
   createdAt DateTime @default(now())
 }
+
+model Order {
+  id          Int          @id @default(autoincrement())
+  userId      String
+  total       Int
+  createdAt   DateTime     @default(now())
+  items       OrderItem[]  // Relación con productos comprados
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+
+  productId String
+  name      String
+  image     String?
+  price     Int     // en centavos
+  quantity  Int
+}

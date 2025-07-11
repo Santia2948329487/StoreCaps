@@ -37,9 +37,9 @@ export default function CartPage() {
 
       // Actualizar en base de datos
       await fetch('/api/cart', {
-  method: 'PUT',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ id, quantity: newQuantity }), // no productId
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, quantity: newQuantity }), // no productId
       });
     }
   };
@@ -225,9 +225,28 @@ export default function CartPage() {
                       <span>${total.toLocaleString()}</span>
                     </div>
                   </div>
-                  <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/checkout', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(cartItems),
+                        });
+
+                        const data = await res.json();
+                        if (data.url) {
+                          window.location.href = data.url;
+                        }
+                      } catch (error) {
+                        console.error("Error iniciando el checkout:", error);
+                      }
+                    }}
+                    className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors cursor-pointer"
+                  >
                     Proceder al Pago
                   </button>
+
                   <Link
                     href="/"
                     className="block w-full text-center text-gray-600 hover:text-gray-900 font-medium"
